@@ -1,178 +1,185 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sokak Kaçışı</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sokak Kaçışı</title>
 
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            touch-action: none;
-        }
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    touch-action: none;
+}
 
-        body {
-            overflow: hidden;
-            background: #111;
-            font-family: Arial, sans-serif;
-        }
+body {
+    overflow: hidden;
+    font-family: Arial, sans-serif;
+    background: #111;
+}
 
-        #game {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
-            overflow: hidden;
-            background: linear-gradient(#75c9ff 0%, #dff5ff 42%, #555 42%, #222 100%);
-        }
+#game {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background:
+        linear-gradient(
+            #62c8ff 0%,
+            #ccefff 40%,
+            #555 40%,
+            #222 100%
+        );
+}
 
-        /* Yol */
-        #road {
-            position: absolute;
-            left: 50%;
-            bottom: 0;
-            transform: translateX(-50%);
-            width: 90%;
-            height: 62%;
-            background: #303030;
-            clip-path: polygon(25% 0, 75% 0, 100% 100%, 0 100%);
-        }
+/* Yol */
+#road {
+    position: absolute;
+    width: 90%;
+    height: 70%;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    background: #303030;
+    clip-path: polygon(
+        25% 0,
+        75% 0,
+        100% 100%,
+        0 100%
+    );
+}
 
-        /* Şerit çizgileri */
-        .line {
-            position: absolute;
-            width: 5px;
-            height: 100%;
-            background: repeating-linear-gradient(
-                to bottom,
-                white 0px,
-                white 45px,
-                transparent 45px,
-                transparent 90px
-            );
-            opacity: 0.7;
-        }
+/* Şeritler */
+.lane-line {
+    position: absolute;
+    top: 0;
+    width: 5px;
+    height: 100%;
+    background: repeating-linear-gradient(
+        to bottom,
+        white 0px,
+        white 50px,
+        transparent 50px,
+        transparent 100px
+    );
+    opacity: .7;
+}
 
-        #line1 {
-            left: 38%;
-        }
+#line1 {
+    left: 38%;
+}
 
-        #line2 {
-            left: 62%;
-        }
+#line2 {
+    left: 62%;
+}
 
-        /* Karakter */
-        #player {
-            position: absolute;
-            width: 55px;
-            height: 75px;
-            bottom: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #ff3b30;
-            border-radius: 18px 18px 10px 10px;
-            border: 4px solid white;
-            z-index: 10;
-        }
+/* Oyuncu */
+#player {
+    position: absolute;
+    width: 55px;
+    height: 75px;
+    bottom: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff3b30;
+    border: 4px solid white;
+    border-radius: 15px;
+    z-index: 10;
+}
 
-        #player::before {
-            content: "";
-            position: absolute;
-            width: 32px;
-            height: 32px;
-            background: #ffd1a9;
-            border-radius: 50%;
-            top: -25px;
-            left: 7px;
-            border: 3px solid white;
-        }
+#player::before {
+    content: "";
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    left: 7px;
+    top: -27px;
+    background: #ffd1a9;
+    border: 3px solid white;
+    border-radius: 50%;
+}
 
-        /* Bilgi */
-        #score {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            font-size: 24px;
-            font-weight: bold;
-            z-index: 20;
-            text-shadow: 2px 2px 4px #000;
-        }
+/* Engel */
+.obstacle {
+    position: absolute;
+    width: 58px;
+    height: 58px;
+    background: #ff9500;
+    border: 4px solid #fff;
+    border-radius: 8px;
+    z-index: 8;
+}
 
-        #title {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            z-index: 20;
-            text-shadow: 2px 2px 4px #000;
-        }
+/* Üst bilgi */
+#score {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px black;
+    z-index: 30;
+}
 
-        /* Başlangıç ekranı */
-        #startScreen {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.65);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-        }
+#title {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    color: white;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px black;
+    z-index: 30;
+}
 
-        #startScreen h1 {
-            font-size: 42px;
-            margin-bottom: 15px;
-        }
+/* Başlangıç */
+#startScreen,
+#gameOver {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,.7);
+    color: white;
+    z-index: 100;
+    text-align: center;
+}
 
-        #startScreen p {
-            font-size: 18px;
-            margin-bottom: 25px;
-        }
+#gameOver {
+    display: none;
+}
 
-        #startButton {
-            border: none;
-            background: #ff3b30;
-            color: white;
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-size: 22px;
-            font-weight: bold;
-        }
+h1,
+h2 {
+    font-size: 42px;
+    margin-bottom: 15px;
+}
 
-        /* Oyun bitti */
-        #gameOver {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 200;
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-        }
+p {
+    margin-bottom: 25px;
+}
 
-        #gameOver h2 {
-            font-size: 42px;
-            margin-bottom: 15px;
-        }
+button {
+    border: none;
+    color: white;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 21px;
+    font-weight: bold;
+}
 
-        #restartButton {
-            border: none;
-            background: #34c759;
-            color: white;
-            padding: 14px 35px;
-            border-radius: 30px;
-            font-size: 20px;
-            font-weight: bold;
-            margin-top: 20px;
-        }
-    </style>
+#startButton {
+    background: #ff3b30;
+}
+
+#restartButton {
+    background: #34c759;
+    margin-top: 20px;
+}
+</style>
 </head>
 
 <body>
@@ -183,15 +190,15 @@
     <div id="title">SOKAK KAÇIŞI</div>
 
     <div id="road">
-        <div class="line" id="line1"></div>
-        <div class="line" id="line2"></div>
+        <div class="lane-line" id="line1"></div>
+        <div class="lane-line" id="line2"></div>
     </div>
 
     <div id="player"></div>
 
     <div id="startScreen">
         <h1>SOKAK KAÇIŞI</h1>
-        <p>Engellerden kaç ve mümkün olduğunca uzağa koş!</p>
+        <p>Engellerden kaç!</p>
         <button id="startButton">BAŞLA</button>
     </div>
 
@@ -206,66 +213,218 @@
 <script>
 
 let playing = false;
+
 let score = 0;
+
 let playerLane = 1;
 
+let obstacles = [];
+
+let obstacleTimer = 0;
+
+let speed = 5;
+
+let lastTime = 0;
+
 const player = document.getElementById("player");
+
 const scoreText = document.getElementById("score");
+
 const startScreen = document.getElementById("startScreen");
+
 const gameOver = document.getElementById("gameOver");
+
 const finalScore = document.getElementById("finalScore");
 
-function updatePlayer() {
 
-    const lanes = ["30%", "50%", "70%"];
+/* Şerit konumları */
+
+const lanes = [
+    "30%",
+    "50%",
+    "70%"
+];
+
+
+/* Oyuncuyu hareket ettir */
+
+function updatePlayer() {
 
     player.style.left = lanes[playerLane];
 
 }
 
+
+/* Oyunu başlat */
+
 function startGame() {
 
     playing = true;
+
     score = 0;
+
     playerLane = 1;
+
+    speed = 5;
+
+    obstacleTimer = 0;
+
+    obstacles.forEach(o => o.element.remove());
+
+    obstacles = [];
 
     updatePlayer();
 
+    scoreText.textContent = "Puan: 0";
+
     startScreen.style.display = "none";
+
     gameOver.style.display = "none";
 
-    gameLoop();
-
-}
-
-function gameLoop() {
-
-    if (!playing) return;
-
-    score++;
-
-    scoreText.textContent = "Puan: " + score;
+    lastTime = performance.now();
 
     requestAnimationFrame(gameLoop);
 
 }
 
+
+/* Engel oluştur */
+
+function createObstacle() {
+
+    const obstacle = document.createElement("div");
+
+    obstacle.className = "obstacle";
+
+    const lane = Math.floor(Math.random() * 3);
+
+    obstacle.style.left = lanes[lane];
+
+    obstacle.style.top = "-80px";
+
+    document.getElementById("game").appendChild(obstacle);
+
+    obstacles.push({
+        element: obstacle,
+        lane: lane,
+        y: -80
+    });
+
+}
+
+
+/* Çarpışma kontrolü */
+
+function collision(obstacle) {
+
+    const playerRect = player.getBoundingClientRect();
+
+    const obstacleRect =
+        obstacle.element.getBoundingClientRect();
+
+    return !(
+        playerRect.right < obstacleRect.left ||
+        playerRect.left > obstacleRect.right ||
+        playerRect.bottom < obstacleRect.top ||
+        playerRect.top > obstacleRect.bottom
+    );
+
+}
+
+
+/* Oyun döngüsü */
+
+function gameLoop(time) {
+
+    if (!playing) return;
+
+    const delta = time - lastTime;
+
+    lastTime = time;
+
+    obstacleTimer += delta;
+
+    /*
+       Her 900 ms'de yeni engel
+    */
+
+    if (obstacleTimer > 900) {
+
+        createObstacle();
+
+        obstacleTimer = 0;
+
+    }
+
+
+    /* Engelleri hareket ettir */
+
+    obstacles.forEach(obstacle => {
+
+        obstacle.y += speed;
+
+        obstacle.element.style.top =
+            obstacle.y + "px";
+
+        if (collision(obstacle)) {
+
+            endGame();
+
+        }
+
+    });
+
+
+    /* Ekrandan çıkan engelleri temizle */
+
+    obstacles = obstacles.filter(obstacle => {
+
+        if (obstacle.y > window.innerHeight + 100) {
+
+            obstacle.element.remove();
+
+            return false;
+
+        }
+
+        return true;
+
+    });
+
+
+    /* Puan */
+
+    score += delta / 100;
+
+    scoreText.textContent =
+        "Puan: " + Math.floor(score);
+
+
+    /* Zaman geçtikçe hızlan */
+
+    speed = 5 + score / 250;
+
+
+    requestAnimationFrame(gameLoop);
+
+}
+
+
+/* Oyunu bitir */
+
 function endGame() {
 
     playing = false;
 
-    finalScore.textContent = "Puan: " + score;
+    finalScore.textContent =
+        "Puan: " + Math.floor(score);
 
     gameOver.style.display = "flex";
 
 }
 
-document.getElementById("startButton").onclick = startGame;
 
-document.getElementById("restartButton").onclick = startGame;
-
-
-/* Klavye kontrolü */
+/* Klavye */
 
 document.addEventListener("keydown", function(event) {
 
@@ -274,8 +433,11 @@ document.addEventListener("keydown", function(event) {
     if (event.key === "ArrowLeft") {
 
         if (playerLane > 0) {
+
             playerLane--;
+
             updatePlayer();
+
         }
 
     }
@@ -283,8 +445,11 @@ document.addEventListener("keydown", function(event) {
     if (event.key === "ArrowRight") {
 
         if (playerLane < 2) {
+
             playerLane++;
+
             updatePlayer();
+
         }
 
     }
@@ -292,43 +457,63 @@ document.addEventListener("keydown", function(event) {
 });
 
 
-/* Telefon kaydırma kontrolü */
+/* Telefon kaydırma */
 
 let touchStartX = 0;
 
 document.addEventListener("touchstart", function(event) {
 
-    touchStartX = event.touches[0].clientX;
+    touchStartX =
+        event.touches[0].clientX;
 
 });
+
 
 document.addEventListener("touchend", function(event) {
 
     if (!playing) return;
 
-    const touchEndX = event.changedTouches[0].clientX;
+    const touchEndX =
+        event.changedTouches[0].clientX;
 
-    const difference = touchEndX - touchStartX;
+    const difference =
+        touchEndX - touchStartX;
 
     if (Math.abs(difference) < 40) return;
+
 
     if (difference < 0) {
 
         if (playerLane > 0) {
+
             playerLane--;
+
             updatePlayer();
+
         }
 
     } else {
 
         if (playerLane < 2) {
+
             playerLane++;
+
             updatePlayer();
+
         }
 
     }
 
 });
+
+
+document.getElementById("startButton")
+    .onclick = startGame;
+
+
+document.getElementById("restartButton")
+    .onclick = startGame;
+
 
 updatePlayer();
 
