@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sokak Kaçışı</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            touch-action: none;
+        }
+
+        body {
+            overflow: hidden;
+            background: #111;
+            font-family: Arial, sans-serif;
+        }
+
+        #game {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: linear-gradient(#75c9ff 0%, #dff5ff 42%, #555 42%, #222 100%);
+        }
+
+        /* Yol */
+        #road {
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            transform: translateX(-50%);
+            width: 90%;
+            height: 62%;
+            background: #303030;
+            clip-path: polygon(25% 0, 75% 0, 100% 100%, 0 100%);
+        }
+
+        /* Şerit çizgileri */
+        .line {
+            position: absolute;
+            width: 5px;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                white 0px,
+                white 45px,
+                transparent 45px,
+                transparent 90px
+            );
+            opacity: 0.7;
+        }
+
+        #line1 {
+            left: 38%;
+        }
+
+        #line2 {
+            left: 62%;
+        }
+
+        /* Karakter */
+        #player {
+            position: absolute;
+            width: 55px;
+            height: 75px;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff3b30;
+            border-radius: 18px 18px 10px 10px;
+            border: 4px solid white;
+            z-index: 10;
+        }
+
+        #player::before {
+            content: "";
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            background: #ffd1a9;
+            border-radius: 50%;
+            top: -25px;
+            left: 7px;
+            border: 3px solid white;
+        }
+
+        /* Bilgi */
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            z-index: 20;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        #title {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 20;
+            text-shadow: 2px 2px 4px #000;
+        }
+
+        /* Başlangıç ekranı */
+        #startScreen {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        #startScreen h1 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        #startScreen p {
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+
+        #startButton {
+            border: none;
+            background: #ff3b30;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        /* Oyun bitti */
+        #gameOver {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        #gameOver h2 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        #restartButton {
+            border: none;
+            background: #34c759;
+            color: white;
+            padding: 14px 35px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="game">
+
+    <div id="score">Puan: 0</div>
+    <div id="title">SOKAK KAÇIŞI</div>
+
+    <div id="road">
+        <div class="line" id="line1"></div>
+        <div class="line" id="line2"></div>
+    </div>
+
+    <div id="player"></div>
+
+    <div id="startScreen">
+        <h1>SOKAK KAÇIŞI</h1>
+        <p>Engellerden kaç ve mümkün olduğunca uzağa koş!</p>
+        <button id="startButton">BAŞLA</button>
+    </div>
+
+    <div id="gameOver">
+        <h2>OYUN BİTTİ</h2>
+        <div id="finalScore">Puan: 0</div>
+        <button id="restartButton">TEKRAR OYNA</button>
+    </div>
+
+</div>
+
+<script>
+
+let playing = false;
+let score = 0;
+let playerLane = 1;
+
+const player = document.getElementById("player");
+const scoreText = document.getElementById("score");
+const startScreen = document.getElementById("startScreen");
+const gameOver = document.getElementById("gameOver");
+const finalScore = document.getElementById("finalScore");
+
+function updatePlayer() {
+
+    const lanes = ["30%", "50%", "70%"];
+
+    player.style.left = lanes[playerLane];
+
+}
+
+function startGame() {
+
+    playing = true;
+    score = 0;
+    playerLane = 1;
+
+    updatePlayer();
+
+    startScreen.style.display = "none";
+    gameOver.style.display = "none";
+
+    gameLoop();
+
+}
+
+function gameLoop() {
+
+    if (!playing) return;
+
+    score++;
+
+    scoreText.textContent = "Puan: " + score;
+
+    requestAnimationFrame(gameLoop);
+
+}
+
+function endGame() {
+
+    playing = false;
+
+    finalScore.textContent = "Puan: " + score;
+
+    gameOver.style.display = "flex";
+
+}
+
+document.getElementById("startButton").onclick = startGame;
+
+document.getElementById("restartButton").onclick = startGame;
+
+
+/* Klavye kontrolü */
+
+document.addEventListener("keydown", function(event) {
+
+    if (!playing) return;
+
+    if (event.key === "ArrowLeft") {
+
+        if (playerLane > 0) {
+            playerLane--;
+            updatePlayer();
+        }
+
+    }
+
+    if (event.key === "ArrowRight") {
+
+        if (playerLane < 2) {
+            playerLane++;
+            updatePlayer();
+        }
+
+    }
+
+});
+
+
+/* Telefon kaydırma kontrolü */
+
+let touchStartX = 0;
+
+document.addEventListener("touchstart", function(event) {
+
+    touchStartX = event.touches[0].clientX;
+
+});
+
+document.addEventListener("touchend", function(event) {
+
+    if (!playing) return;
+
+    const touchEndX = event.changedTouches[0].clientX;
+
+    const difference = touchEndX - touchStartX;
+
+    if (Math.abs(difference) < 40) return;
+
+    if (difference < 0) {
+
+        if (playerLane > 0) {
+            playerLane--;
+            updatePlayer();
+        }
+
+    } else {
+
+        if (playerLane < 2) {
+            playerLane++;
+            updatePlayer();
+        }
+
+    }
+
+});
+
+updatePlayer();
+
+</script>
+
+</body>
+</html>
