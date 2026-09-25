@@ -24,16 +24,16 @@ body {
     width: 100vw;
     height: 100vh;
     overflow: hidden;
-    background:
-        linear-gradient(
-            #62c8ff 0%,
-            #ccefff 40%,
-            #555 40%,
-            #222 100%
-        );
+    background: linear-gradient(
+        #62c8ff 0%,
+        #ccefff 40%,
+        #555 40%,
+        #222 100%
+    );
 }
 
 /* YOL */
+
 #road {
     position: absolute;
     width: 90%;
@@ -51,7 +51,8 @@ body {
     );
 }
 
-/* ŞERİT ÇİZGİLERİ */
+/* ŞERİTLER */
+
 .lane-line {
     position: absolute;
     top: 0;
@@ -78,8 +79,10 @@ body {
 }
 
 /* OYUNCU */
+
 #player {
     position: absolute;
+
     width: 55px;
     height: 75px;
 
@@ -95,6 +98,9 @@ body {
     border-radius: 15px;
 
     z-index: 10;
+
+    transition:
+        bottom .12s ease-out;
 }
 
 #player::before {
@@ -115,7 +121,14 @@ body {
     border-radius: 50%;
 }
 
+/* ZIPLAMA */
+
+#player.jumping {
+    bottom: 170px;
+}
+
 /* ENGEL */
+
 .obstacle {
     position: absolute;
 
@@ -132,6 +145,7 @@ body {
 }
 
 /* PARA */
+
 .coin {
     position: absolute;
 
@@ -147,14 +161,15 @@ body {
         #ff9500 100%
     );
 
-    border: 3px solid #fff;
+    border: 3px solid white;
 
     box-shadow:
         0 0 10px #ffd60a;
 
     z-index: 9;
 
-    animation: coinSpin .5s linear infinite;
+    animation:
+        coinSpin .5s linear infinite;
 }
 
 @keyframes coinSpin {
@@ -170,10 +185,10 @@ body {
     100% {
         transform: rotateY(180deg);
     }
-
 }
 
 /* BİLGİ */
+
 #score,
 #coins {
     position: absolute;
@@ -184,7 +199,8 @@ body {
 
     font-weight: bold;
 
-    text-shadow: 2px 2px 4px black;
+    text-shadow:
+        2px 2px 4px black;
 
     z-index: 30;
 }
@@ -209,12 +225,14 @@ body {
 
     font-weight: bold;
 
-    text-shadow: 2px 2px 4px black;
+    text-shadow:
+        2px 2px 4px black;
 
     z-index: 30;
 }
 
-/* BAŞLANGIÇ */
+/* EKRANLAR */
+
 #startScreen,
 #gameOver {
     position: absolute;
@@ -229,7 +247,8 @@ body {
 
     align-items: center;
 
-    background: rgba(0,0,0,.7);
+    background:
+        rgba(0,0,0,.7);
 
     color: white;
 
@@ -245,6 +264,7 @@ body {
 h1,
 h2 {
     font-size: 42px;
+
     margin-bottom: 15px;
 }
 
@@ -321,7 +341,7 @@ button {
         </h1>
 
         <p>
-            Engellerden kaç, altınları topla!
+            Sağa, sola ve yukarı kaydırarak kaç!
         </p>
 
         <button id="startButton">
@@ -374,6 +394,8 @@ let speed = 5;
 
 let lastTime = 0;
 
+let jumping = false;
+
 
 /* HTML */
 
@@ -418,6 +440,29 @@ function updatePlayer() {
 }
 
 
+/* ZIPLAMA */
+
+function jump() {
+
+    if (!playing) return;
+
+    if (jumping) return;
+
+    jumping = true;
+
+    player.classList.add("jumping");
+
+    setTimeout(function() {
+
+        player.classList.remove("jumping");
+
+        jumping = false;
+
+    }, 650);
+
+}
+
+
 /* OYUNU BAŞLAT */
 
 function startGame() {
@@ -435,6 +480,10 @@ function startGame() {
     obstacleTimer = 0;
 
     coinTimer = 0;
+
+    jumping = false;
+
+    player.classList.remove("jumping");
 
     obstacles.forEach(
         o => o.element.remove()
@@ -470,7 +519,7 @@ function startGame() {
 }
 
 
-/* ENGEL OLUŞTUR */
+/* ENGEL */
 
 function createObstacle() {
 
@@ -506,7 +555,7 @@ function createObstacle() {
 }
 
 
-/* PARA OLUŞTUR */
+/* PARA */
 
 function createCoin() {
 
@@ -544,7 +593,10 @@ function createCoin() {
 
 /* ÇARPIŞMA */
 
-function isColliding(element1, element2) {
+function isColliding(
+    element1,
+    element2
+) {
 
     const rect1 =
         element1.getBoundingClientRect();
@@ -562,7 +614,7 @@ function isColliding(element1, element2) {
 }
 
 
-/* OYUN DÖNGÜSÜ */
+/* OYUN */
 
 function gameLoop(time) {
 
@@ -602,104 +654,120 @@ function gameLoop(time) {
 
     /* ENGELLER */
 
-    obstacles.forEach(obstacle => {
+    obstacles.forEach(
+        obstacle => {
 
-        obstacle.y += speed;
+            obstacle.y += speed;
 
-        obstacle.element.style.top =
-            obstacle.y + "px";
+            obstacle.element.style.top =
+                obstacle.y + "px";
 
 
-        if (
-            obstacle.lane === playerLane &&
-            isColliding(
-                player,
-                obstacle.element
-            )
-        ) {
+            /*
+             * Zıplıyorsak engelin
+             * üzerinden geçebiliriz.
+             */
 
-            endGame();
+            if (
+                !jumping &&
+                obstacle.lane === playerLane &&
+                isColliding(
+                    player,
+                    obstacle.element
+                )
+            ) {
+
+                endGame();
+
+            }
 
         }
-
-    });
+    );
 
 
     /* PARALAR */
 
-    coinObjects.forEach(coin => {
+    coinObjects.forEach(
+        coin => {
 
-        coin.y += speed;
+            coin.y += speed;
 
-        coin.element.style.top =
-            coin.y + "px";
+            coin.element.style.top =
+                coin.y + "px";
 
 
-        if (
-            coin.lane === playerLane &&
-            isColliding(
-                player,
-                coin.element
-            )
-        ) {
+            if (
+                coin.lane === playerLane &&
+                isColliding(
+                    player,
+                    coin.element
+                )
+            ) {
 
-            coins++;
+                coins++;
 
-            coinsText.textContent =
-                "Altın: " + coins;
+                coinsText.textContent =
+                    "Altın: " + coins;
 
-            coin.element.remove();
+                coin.element.remove();
 
-            coin.collected = true;
+                coin.collected = true;
+
+            }
 
         }
+    );
 
-    });
 
-
-    /* EKRANDAN ÇIKAN ENGELLER */
+    /* ENGEL TEMİZLE */
 
     obstacles =
-        obstacles.filter(obstacle => {
+        obstacles.filter(
+            obstacle => {
 
-            if (
-                obstacle.y >
-                window.innerHeight + 100
-            ) {
+                if (
+                    obstacle.y >
+                    window.innerHeight + 100
+                ) {
 
-                obstacle.element.remove();
+                    obstacle.element.remove();
 
-                return false;
+                    return false;
 
-            }
-
-            return true;
-
-        });
-
-
-    /* EKRANDAN ÇIKAN PARALAR */
-
-    coinObjects =
-        coinObjects.filter(coin => {
-
-            if (
-                coin.collected ||
-                coin.y >
-                window.innerHeight + 100
-            ) {
-
-                if (!coin.collected) {
-                    coin.element.remove();
                 }
 
-                return false;
+                return true;
 
             }
+        );
 
-            return true;
 
-        });
+    /* PARA TEMİZLE */
+
+    coinObjects =
+        coinObjects.filter(
+            coin => {
+
+                if (
+                    coin.collected ||
+                    coin.y >
+                    window.innerHeight + 100
+                ) {
+
+                    if (!coin.collected) {
+
+                        coin.element.remove();
+
+                    }
+
+                    return false;
+
+                }
+
+                return true;
+
+            }
+        );
 
 
     /* PUAN */
@@ -750,6 +818,7 @@ document.addEventListener(
 
         if (!playing) return;
 
+
         if (
             event.key === "ArrowLeft"
         ) {
@@ -779,13 +848,26 @@ document.addEventListener(
 
         }
 
+
+        if (
+            event.key === "ArrowUp" ||
+            event.key === " "
+        ) {
+
+            jump();
+
+        }
+
     }
 );
 
 
-/* TELEFON KAYDIRMA */
+/* TELEFON */
 
 let touchStartX = 0;
+
+let touchStartY = 0;
+
 
 document.addEventListener(
     "touchstart",
@@ -793,6 +875,9 @@ document.addEventListener(
 
         touchStartX =
             event.touches[0].clientX;
+
+        touchStartY =
+            event.touches[0].clientY;
 
     }
 );
@@ -807,16 +892,52 @@ document.addEventListener(
         const touchEndX =
             event.changedTouches[0].clientX;
 
-        const difference =
+        const touchEndY =
+            event.changedTouches[0].clientY;
+
+        const differenceX =
             touchEndX - touchStartX;
 
+        const differenceY =
+            touchEndY - touchStartY;
+
+
+        /*
+         * Önce dikey hareketi kontrol et
+         */
 
         if (
-            Math.abs(difference) < 40
-        ) return;
+            Math.abs(differenceY) >
+            Math.abs(differenceX)
+        ) {
+
+            if (
+                differenceY < -40
+            ) {
+
+                jump();
+
+            }
+
+            return;
+
+        }
 
 
-        if (difference < 0) {
+        /*
+         * Yatay hareket
+         */
+
+        if (
+            Math.abs(differenceX) < 40
+        ) {
+
+            return;
+
+        }
+
+
+        if (differenceX < 0) {
 
             if (playerLane > 0) {
 
@@ -841,6 +962,8 @@ document.addEventListener(
     }
 );
 
+
+/* BUTONLAR */
 
 document.getElementById(
     "startButton"
